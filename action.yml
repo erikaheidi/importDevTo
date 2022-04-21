@@ -1,0 +1,8 @@
+name: 'Import DEV.to posts'
+description: 'Imports posts from DEV.to as markdown files'
+outputs:
+  response:
+    description: 'Output from command'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
