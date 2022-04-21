@@ -51,7 +51,7 @@ class DevController extends CommandController
             fwrite($file, $article_content['body_markdown']);
             fclose($file);
 
-            $this->getPrinter()->info("Saved article: " . $article_content['title']);
+            $this->getPrinter()->info("Saved article: " . $article_content['title'] . " to $filepath");
         }
 
         $this->getPrinter()->info("Finished importing.", true);
