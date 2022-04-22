@@ -16,8 +16,7 @@ class DevController extends CommandController
         $crawler = new Client();
 
         if (!$this->getApp()->config->devto_username) {
-            $this->getPrinter()->error('You must set up your devto_username config');
-            return;
+            throw new \Exception('You must set up your devto_username config.');
         }
 
         $devto_username = $this->getApp()->config->devto_username;
@@ -25,16 +24,18 @@ class DevController extends CommandController
         $articles_response = $crawler->get($this->API_URL . '/articles?username=' . $devto_username);
 
         if ($articles_response['code'] !== 200) {
-            $this->getPrinter()->error('Error while contacting the dev.to API.');
-            return;
+            throw new \Exception('Error while contacting the dev.to API.');
         }
 
         if (!$this->getApp()->config->data_path) {
-            $this->getPrinter()->error('You must define your data_path config value.');
-            return;
+            throw new \Exception('You must define your data_path config value.');
         }
 
         $data_path = $this->getApp()->config->data_path;
+
+        if (!is_dir($data_path) && !mkdir($data_path)) {
+            throw new \Exception('You must define your data_path config value.');
+        }
 
         $articles = json_decode($articles_response['body'], true);
         foreach($articles as $article) {
@@ -46,7 +47,8 @@ class DevController extends CommandController
             }
 
             $article_content = json_decode($get_article['body'], true);
-            $filepath = $data_path . '/' . $article_content['slug'] . '.md';
+            $date = new \DateTime($article_content['published_at']);
+            $filepath = $data_path . '/' . $date->format('Ymd') . '_' . $article_content['slug'] . '.md';
             $file = fopen($filepath, 'w+');
             fwrite($file, $article_content['body_markdown']);
             fclose($file);
